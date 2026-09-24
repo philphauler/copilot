@@ -6,13 +6,15 @@
 module Test.Copilot.Language.Operators.Temporal where
 
 -- External imports
+import Control.Exception                    (SomeException, evaluate, try)
 import Data.Int                             (Int8)
 import Test.Framework                       (Test, testGroup)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.QuickCheck                      (Arbitrary, Gen, Property,
-                                             arbitrary, chooseInt, forAll,
+                                             arbitrary, chooseInt,
+                                             counterexample, forAll,
                                              forAllShow, oneof, vectorOf)
-import Test.QuickCheck.Monadic              (monadicIO, run)
+import Test.QuickCheck.Monadic              (assert, monadicIO, monitor, run)
 
 -- Internal imports: library modules being tested
 import           Copilot.Language                    (Typed)
@@ -37,11 +39,21 @@ tests =
 -- | Test that dropping any number of elements up to the number of elements
 -- prepended to a stream, possibly split over several drops and with the
 -- elements prepended in several steps, produces the expected values.
+--
+-- Rejecting such a stream is reported by Copilot with an exception, which is
+-- turned into a failure of the property so that it is reported as a failed
+-- test with its message.
 testDropPrepended :: Property
 testDropPrepended =
   forAll (chooseInt (0, maxTraceLength)) $ \steps ->
   forAllShow arbitraryDropSemanticsP (semanticsShowK steps) $ \pair ->
-  monadicIO $ run (checkSemanticsP steps [] pair)
+  monadicIO $ do
+    result <- run $ try (checkSemanticsP steps [] pair >>= evaluate)
+    case result of
+      Left e   -> do
+        monitor (counterexample ("Exception: " ++ show (e :: SomeException)))
+        assert False
+      Right ok -> assert ok
 
 -- * Random generators
 
