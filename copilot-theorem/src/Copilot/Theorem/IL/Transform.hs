@@ -1,5 +1,4 @@
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE Safe       #-}
+{-# LANGUAGE Safe #-}
 
 -- | Simplify IL expressions by partly evaluating operations on booleans.
 module Copilot.Theorem.IL.Transform ( bsimpl ) where
@@ -15,7 +14,7 @@ import Copilot.Theorem.IL.Spec
 bsimpl :: Expr -> Expr
 bsimpl = until (\x -> bsimpl' x == x) bsimpl'
   where
-    bsimpl' = \case
+    bsimpl' = \expression -> case expression of
       Ite _ (ConstB True) e _     -> bsimpl' e
       Ite _ (ConstB False) _ e    -> bsimpl' e
       Ite t c e1 e2               -> Ite t (bsimpl' c) (bsimpl' e1) (bsimpl' e2)
