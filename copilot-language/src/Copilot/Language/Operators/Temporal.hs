@@ -12,6 +12,7 @@ import Copilot.Core (Typed)
 import Copilot.Language.Prelude
 import Copilot.Language.Stream
 import Prelude ()
+import qualified Prelude as P
 
 infixr 1 ++
 
@@ -35,5 +36,9 @@ infixr 1 ++
 drop :: Typed a => Int -> Stream a -> Stream a
 drop 0 s             = s
 drop _ ( Const j )   = Const j
-drop i ( Drop  j s ) = Drop (fromIntegral i + j) s
+drop i ( Drop  j s ) = drop (i + j) s
+drop i ( Append xs _ s )
+  | i P.>= n         = drop (i - n) s
+  where
+    n = length xs
 drop i s             = Drop (fromIntegral i)     s
