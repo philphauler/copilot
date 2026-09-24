@@ -5,6 +5,7 @@ module Main where
 import Test.Framework (Test, defaultMain)
 
 -- Internal imports
+import qualified Test.Copilot.Language.Operators.Temporal
 import qualified Test.Copilot.Language.Reify
 
 -- | Run all unit tests on copilot-language.
@@ -14,5 +15,6 @@ main = defaultMain tests
 -- | All unit tests in copilot-language.
 tests :: [Test.Framework.Test]
 tests =
-  [ Test.Copilot.Language.Reify.tests
+  [ Test.Copilot.Language.Operators.Temporal.tests
+  , Test.Copilot.Language.Reify.tests
   ]

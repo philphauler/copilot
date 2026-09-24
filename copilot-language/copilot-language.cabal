@@ -83,6 +83,7 @@ test-suite unit-tests
     Main.hs
 
   other-modules:
+    Test.Copilot.Language.Operators.Temporal
     Test.Copilot.Language.Reify
     Test.Extra
 
